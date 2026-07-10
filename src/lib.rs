@@ -104,6 +104,42 @@ impl TGAHeader {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum Color {
+    /// 8-bit greyscale or indexed
+    L8(u8),
+    /// 16-bit packed (1-5-5-5: attribute, R, G, B)
+    Rgb16(u16),
+    /// 24-bit (R, G, B) — stored as B, G, R in TGA
+    Rgb24(u8, u8, u8),
+    /// 32-bit (R, G, B, A) — stored as B, G, R, A in TGA
+    Rgba32(u8, u8, u8, u8),
+}
+
+impl Color {
+    pub fn image_bits(&self) -> ImageBits {
+        match self {
+            Color::L8(_) => ImageBits::N8,
+            Color::Rgb16(_) => ImageBits::N16,
+            Color::Rgb24(..) => ImageBits::N24,
+            Color::Rgba32(..) => ImageBits::N32,
+        }
+    }
+
+    /// Serialise to bytes in TGA byte order (BGR / BGRA).
+    fn to_tga_bytes(self) -> [u8; 4] {
+        match self {
+            Color::L8(v) => [v, 0, 0, 0],
+            Color::Rgb16(v) => {
+                let [lo, hi] = v.to_le_bytes();
+                [lo, hi, 0, 0]
+            }
+            Color::Rgb24(r, g, b) => [b, g, r, 0],
+            Color::Rgba32(r, g, b, a) => [b, g, r, a],
+        }
+    }
+}
+
 pub struct TGAImage {
     header: TGAHeader,
     data: BitVec<u8>,
@@ -139,6 +175,34 @@ impl TGAImage {
 
         let data_bytes: &[u8] = self.data.as_raw_slice();
         write.write_all(data_bytes)?;
+
+        Ok(())
+    }
+
+    pub fn set(&mut self, x: u16, y: u16, color: Color) -> Result<(), &'static str> {
+        if color.image_bits() != self.header.bits {
+            return Err("color bit depth does not match image bit depth");
+        }
+
+        if x >= self.header.width || y >= self.header.height {
+            return Err("pixel coordinates out of bounds");
+        }
+
+        let bpp = self.header.bits as usize;
+        let pixel_bit_offset =
+            (y as usize * self.header.width as usize + x as usize) * bpp;
+
+        let bytes = color.to_tga_bytes();
+        let byte_count = bpp / 8;
+
+        for i in 0..byte_count {
+            let byte = bytes[i];
+            let bit_offset = pixel_bit_offset + i * 8;
+            for bit in 0..8usize {
+                // TGA is little-endian: LSB first within each byte.
+                self.data.set(bit_offset + bit, (byte >> bit) & 1 == 1);
+            }
+        }
 
         Ok(())
     }
