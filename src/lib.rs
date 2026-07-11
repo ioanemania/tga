@@ -195,8 +195,10 @@ impl TGAImage {
         }
 
         let bpp = self.header.bits as usize;
-        let pixel_bit_offset =
-            (point.y as usize * self.header.width as usize + point.x as usize) * bpp;
+        let pixel_bit_offset = ((
+            (self.header.width as usize - point.y as usize) * self.header.width as usize)
+            + point.x as usize)
+            * bpp;
 
         let bytes = color.to_tga_bytes();
         let byte_count = bpp / 8;
