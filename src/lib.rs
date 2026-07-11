@@ -195,8 +195,8 @@ impl TGAImage {
         }
 
         let bpp = self.header.bits as usize;
-        let pixel_bit_offset = ((
-            (self.header.width as usize - point.y as usize) * self.header.width as usize)
+        let pixel_bit_offset = (((self.header.width as usize - point.y as usize)
+            * self.header.width as usize)
             + point.x as usize)
             * bpp;
 
@@ -209,6 +209,31 @@ impl TGAImage {
             for bit in 0..8usize {
                 // TGA is little-endian: LSB first within each byte.
                 self.data.set(bit_offset + bit, (byte >> bit) & 1 == 1);
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn draw_line(
+        &mut self,
+        start: Vector2I,
+        end: Vector2I,
+        color: Color,
+    ) -> Result<(), &'static str> {
+        let dx = end.x - start.x;
+        let dy = end.y - start.y;
+        let mut difference = 2 * dy - dx;
+        let mut y = start.y;
+
+        for x in start.x..=end.x {
+            self.set(Vector2I { x, y }, color)?;
+
+            if difference > 0 {
+                y += 1;
+                difference = difference + (2 * (dy - dx));
+            } else {
+                difference = difference + 2 * dy;
             }
         }
 
