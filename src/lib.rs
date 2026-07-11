@@ -4,6 +4,12 @@ use bitvec::vec::BitVec;
 use bytemuck::{Pod, Zeroable, bytes_of, checked::from_bytes};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+pub struct Vector2I {
+    pub x: i16,
+    pub y: i16,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]
 pub enum ColourMapKind {
     None = 0,
@@ -41,11 +47,11 @@ unsafe impl Pod for ImageBits {}
 #[repr(u8)]
 pub enum ColourMapBits {
     None = 0,
-    N8   = 8,
-    N15  = 15,
-    N16  = 16,
-    N24  = 24,
-    N32  = 32,
+    N8 = 8,
+    N15 = 15,
+    N16 = 16,
+    N24 = 24,
+    N32 = 32,
 }
 
 unsafe impl Zeroable for ColourMapBits {}
@@ -179,18 +185,18 @@ impl TGAImage {
         Ok(())
     }
 
-    pub fn set(&mut self, x: u16, y: u16, color: Color) -> Result<(), &'static str> {
+    pub fn set(&mut self, point: Vector2I, color: Color) -> Result<(), &'static str> {
         if color.image_bits() != self.header.bits {
             return Err("color bit depth does not match image bit depth");
         }
 
-        if x >= self.header.width || y >= self.header.height {
+        if point.x >= self.header.width as i16 || point.y >= self.header.height as i16 {
             return Err("pixel coordinates out of bounds");
         }
 
         let bpp = self.header.bits as usize;
         let pixel_bit_offset =
-            (y as usize * self.header.width as usize + x as usize) * bpp;
+            (point.y as usize * self.header.width as usize + point.x as usize) * bpp;
 
         let bytes = color.to_tga_bytes();
         let byte_count = bpp / 8;
