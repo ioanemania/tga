@@ -221,19 +221,33 @@ impl TGAImage {
         end: Vector2I,
         color: Color,
     ) -> Result<(), &'static str> {
-        let dx = end.x - start.x;
-        let dy = end.y - start.y;
-        let mut difference = 2 * dy - dx;
+        let dx = (end.x - start.x).abs();
+        let sx = if start.x < end.x { 1 } else { -1 };
+        let dy = -(end.y - start.y).abs();
+        let sy = if start.y < end.y { 1 } else { -1 };
+        let error = dx + dy;
+
+        let mut x = start.x;
         let mut y = start.y;
 
-        for x in start.x..=end.x {
+        loop {
             self.set(Vector2I { x, y }, color)?;
+            let e2 = 2*error;
 
-            if difference > 0 {
-                y += 1;
-                difference = difference + (2 * (dy - dx));
-            } else {
-                difference = difference + 2 * dy;
+            if e2 >= dy {
+                if x == end.x {
+                    break;
+                }
+
+                x += sx;
+            }
+
+            if e2 <= dx {
+                if y == end.y {
+                    break;
+                }
+
+                y += sy;
             }
         }
 
