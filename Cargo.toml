@@ -6,3 +6,7 @@ edition = "2024"
 [dependencies]
 bitvec = "1.1.1"
 bytemuck = { version = "1.25.0", features = ["derive"] }
+rand = "0.10.2"
+
+[profile.release]
+debug = true
