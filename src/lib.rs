@@ -195,7 +195,7 @@ impl TGAImage {
         }
 
         let bpp = self.header.bits as usize;
-        let pixel_bit_offset = (((self.header.width as usize - point.y as usize)
+        let pixel_bit_offset = (((self.header.height as usize - 1 - point.y as usize)
             * self.header.width as usize)
             + point.x as usize)
             * bpp;
