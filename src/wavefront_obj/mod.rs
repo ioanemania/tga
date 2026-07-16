@@ -1,11 +1,8 @@
 use std::io::{BufRead, BufReader, Read};
 
-pub struct Vertex {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
-}
+use nalgebra::Vector4;
+
+type Vertex = Vector4<f32>;
 
 pub struct Face {
     pub vertex_indices: Vec<usize>,
@@ -55,7 +52,7 @@ impl Model {
                         })
                         .transpose()?
                         .unwrap_or(1.0);
-                    model.vertices.push(Vertex { x, y, z, w });
+                    model.vertices.push(Vertex::new(x, y, z, w));
                 }
                 "f" => {
                     let mut face = Face {

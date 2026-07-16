@@ -12,14 +12,14 @@ fn main() {
     for _ in 0..(1 << 24) {
         image
             .draw_line(
-                Vector2I {
-                    x: random_range(0..WIDTH) as i16,
-                    y: random_range(0..HEIGHT) as i16,
-                },
-                Vector2I {
-                    x: random_range(0..WIDTH) as i16,
-                    y: random_range(0..HEIGHT) as i16,
-                },
+                Vector2I::new(
+                    random_range(0..WIDTH) as i16,
+                    random_range(0..HEIGHT) as i16,
+                ),
+                Vector2I::new(
+                    random_range(0..WIDTH) as i16,
+                    random_range(0..HEIGHT) as i16,
+                ),
                 Color::Rgb24(
                     random_range(0..=255),
                     random_range(0..=255),

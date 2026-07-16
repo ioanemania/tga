@@ -1,6 +1,7 @@
 use std::io::{Read, Write};
 
 use bytemuck::{Pod, Zeroable, bytes_of, checked::from_bytes};
+use nalgebra::Vector2;
 
 pub mod wavefront_obj;
 
@@ -10,11 +11,7 @@ pub struct Vector3 {
     pub z: f32,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Vector2I {
-    pub x: i16,
-    pub y: i16,
-}
+pub type Vector2I = Vector2<i16>;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]
@@ -209,6 +206,7 @@ impl TGAImage {
         }
 
         if point.x >= self.header.width as i16 || point.y >= self.header.height as i16 {
+            eprintln!("Pixel coordinates out of bounds: {}", point);
             return Err("pixel coordinates out of bounds");
         }
 
@@ -237,7 +235,7 @@ impl TGAImage {
         let mut y = start.y;
 
         loop {
-            self.set(Vector2I { x, y }, color)?;
+            self.set(Vector2I::new(x, y), color)?;
             let e2 = 2 * error;
 
             if e2 >= dy {
