@@ -1,6 +1,6 @@
 use std::io::{Read, Write};
 
-use bitvec::vec::BitVec;
+
 use bytemuck::{Pod, Zeroable, bytes_of, checked::from_bytes};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -148,13 +148,21 @@ impl Color {
 
 pub struct TGAImage {
     header: TGAHeader,
-    data: BitVec<u8>,
+    data: Vec<Color>,
 }
 
 impl TGAImage {
     pub fn new(width: u16, height: u16, kind: ImageKind, bits: ImageBits) -> Self {
-        let total_bits = width as usize * height as usize * bits as usize;
-        let data = BitVec::repeat(false, total_bits);
+        let size = width as usize * height as usize;
+        let data: Vec<Color> = vec![
+            match bits {
+                ImageBits::N8 => Color::L8(0),
+                ImageBits::N16 => Color::Rgb16(0),
+                ImageBits::N24 => Color::Rgb24(0, 0, 0),
+                ImageBits::N32 => Color::Rgba32(0, 0, 0, 0),
+            };
+            size
+        ];
 
         Self {
             header: TGAHeader {
@@ -179,8 +187,11 @@ impl TGAImage {
         let header_bytes: &[u8] = bytes_of(&self.header);
         write.write_all(header_bytes)?;
 
-        let data_bytes: &[u8] = self.data.as_raw_slice();
-        write.write_all(data_bytes)?;
+        for pixel in &self.data {
+            let byte_count = self.header.bits as usize / 8;
+            let bytes = pixel.to_tga_bytes();
+            write.write_all(&bytes[0..byte_count])?;
+        }
 
         Ok(())
     }
@@ -194,23 +205,11 @@ impl TGAImage {
             return Err("pixel coordinates out of bounds");
         }
 
-        let bpp = self.header.bits as usize;
-        let pixel_bit_offset = (((self.header.height as usize - 1 - point.y as usize)
+        let offset = ((self.header.height as usize - 1 - point.y as usize)
             * self.header.width as usize)
-            + point.x as usize)
-            * bpp;
+            + point.x as usize;
 
-        let bytes = color.to_tga_bytes();
-        let byte_count = bpp / 8;
-
-        for i in 0..byte_count {
-            let byte = bytes[i];
-            let bit_offset = pixel_bit_offset + i * 8;
-            for bit in 0..8usize {
-                // TGA is little-endian: LSB first within each byte.
-                self.data.set(bit_offset + bit, (byte >> bit) & 1 == 1);
-            }
-        }
+        self.data[offset] = color;
 
         Ok(())
     }
@@ -232,7 +231,7 @@ impl TGAImage {
 
         loop {
             self.set(Vector2I { x, y }, color)?;
-            let e2 = 2*error;
+            let e2 = 2 * error;
 
             if e2 >= dy {
                 if x == end.x {
