@@ -1,7 +1,14 @@
 use std::io::{Read, Write};
 
-
 use bytemuck::{Pod, Zeroable, bytes_of, checked::from_bytes};
+
+pub mod wavefront_obj;
+
+pub struct Vector3 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vector2I {
