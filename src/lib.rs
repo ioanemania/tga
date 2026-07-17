@@ -204,11 +204,15 @@ impl SetPixel for TGAImage {
             return Err("pixel coordinates out of bounds");
         }
 
-        let offset = ((self.header.height as usize - 1 - point.y as usize)
-            * self.header.width as usize)
-            + point.x as usize;
+        let offset = ((self.header.height as i32 - 1 - point.y as i32)
+            * self.header.width as i32)
+            + point.x as i32;
 
-        self.data[offset] = color;
+        if offset < 0 || offset >= self.data.len() as i32 {
+            return Err("offest out of bounds");
+        }
+
+        self.data[offset as usize] = color;
 
         Ok(())
     }
