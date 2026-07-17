@@ -3,6 +3,12 @@ use crate::{
     set_pixel::{Color, SetPixel},
 };
 
+pub fn render_triangle(target: &mut impl SetPixel, v1: Vector2I, v2: Vector2I, v3: Vector2I, color: Color) {
+    render_line(target, v1, v2, color);
+    render_line(target, v1, v3, color);
+    render_line(target, v2, v3, color);
+}
+
 pub fn render_line(target: &mut impl SetPixel, start: Vector2I, end: Vector2I, color: Color) {
     if (end.y - start.y).abs() < (end.x - start.x).abs() {
         if start.x > end.x {
