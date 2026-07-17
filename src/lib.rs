@@ -3,11 +3,11 @@ use std::io::{Read, Write};
 
 use bytemuck::{Pod, Zeroable, bytes_of, checked::from_bytes};
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Vector2I {
-    pub x: i16,
-    pub y: i16,
-}
+use crate::{set_pixel::{Color, SetPixel}, vector::Vector2I};
+
+pub mod set_pixel;
+pub mod vector;
+pub mod renderer;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]
@@ -110,18 +110,6 @@ impl TGAHeader {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Color {
-    /// 8-bit greyscale or indexed
-    L8(u8),
-    /// 16-bit packed (1-5-5-5: attribute, R, G, B)
-    Rgb16(u16),
-    /// 24-bit (R, G, B) — stored as B, G, R in TGA
-    Rgb24(u8, u8, u8),
-    /// 32-bit (R, G, B, A) — stored as B, G, R, A in TGA
-    Rgba32(u8, u8, u8, u8),
-}
-
 impl Color {
     pub fn image_bits(&self) -> ImageBits {
         match self {
@@ -195,8 +183,10 @@ impl TGAImage {
 
         Ok(())
     }
+}
 
-    pub fn set(&mut self, point: Vector2I, color: Color) -> Result<(), &'static str> {
+impl SetPixel for TGAImage {
+    fn set_pixel(&mut self, point: Vector2I, color: Color) -> Result<(), &'static str> {
         if color.image_bits() != self.header.bits {
             return Err("color bit depth does not match image bit depth");
         }
@@ -210,45 +200,6 @@ impl TGAImage {
             + point.x as usize;
 
         self.data[offset] = color;
-
-        Ok(())
-    }
-
-    pub fn draw_line(
-        &mut self,
-        start: Vector2I,
-        end: Vector2I,
-        color: Color,
-    ) -> Result<(), &'static str> {
-        let dx = (end.x - start.x).abs();
-        let sx = if start.x < end.x { 1 } else { -1 };
-        let dy = -(end.y - start.y).abs();
-        let sy = if start.y < end.y { 1 } else { -1 };
-        let error = dx + dy;
-
-        let mut x = start.x;
-        let mut y = start.y;
-
-        loop {
-            self.set(Vector2I { x, y }, color)?;
-            let e2 = 2 * error;
-
-            if e2 >= dy {
-                if x == end.x {
-                    break;
-                }
-
-                x += sx;
-            }
-
-            if e2 <= dx {
-                if y == end.y {
-                    break;
-                }
-
-                y += sy;
-            }
-        }
 
         Ok(())
     }

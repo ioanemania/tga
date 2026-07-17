@@ -1,16 +1,31 @@
 use std::fs::File;
 
-use tga::{ImageBits, ImageKind, TGAImage, Vector2I};
+use tga::{ImageBits, ImageKind, TGAImage, renderer, vector::Vector2I};
+
+const WIDTH: usize = 64;
+const HEIGHT: usize = 64;
 
 fn main() {
-    let mut image = TGAImage::new(64, 64, ImageKind::RGB, ImageBits::N24);
+    let mut image = TGAImage::new(WIDTH as u16, HEIGHT as u16, ImageKind::RGB, ImageBits::N24);
 
-    image.draw_line(Vector2I { x: 0, y: 1 }, Vector2I { x: 31, y: 31 }, tga::Color::Rgb24(0, 255, 0)).unwrap();
+    renderer::render_line(
+        &mut image,
+        Vector2I {
+            x: 0,
+            y: (HEIGHT as i16) - 1,
+        },
+        Vector2I {
+            x: (WIDTH as i16) - 1,
+            y: 0,
+        },
+        tga::set_pixel::Color::Rgb24(255, 0, 0),
+    );
 
     let mut file = File::options()
         .create(true)
         .write(true)
-        .open("black_image.tga").unwrap();
+        .open("black_image.tga")
+        .unwrap();
 
     image.write(&mut file).unwrap();
 }
