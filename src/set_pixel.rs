@@ -1,4 +1,4 @@
-use crate::vector::Vector2I;
+use crate::Vector2I;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Color {

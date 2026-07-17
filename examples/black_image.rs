@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use tga::{ImageBits, ImageKind, TGAImage, renderer, vector::Vector2I};
+use tga::{ImageBits, ImageKind, TGAImage, Vector2I, renderer};
 
 const WIDTH: usize = 64;
 const HEIGHT: usize = 64;
@@ -10,45 +10,26 @@ fn main() {
 
     renderer::render_line(
         &mut image,
-        Vector2I {
-            x: 10,
-            y: 40,
-        },
-        Vector2I {
-            x: 19,
-            y: 36,
-        },
+        Vector2I::new(10, 40),
+        Vector2I::new(19, 36),
         tga::set_pixel::Color::Rgb24(255, 0, 0),
     );
 
     // Horizontal Line
     renderer::render_line(
         &mut image,
-        Vector2I {
-            x: 2,
-            y: 2,
-        },
-        Vector2I {
-            x: 10,
-            y: 2,
-        },
+        Vector2I::new(2, 2),
+        Vector2I::new(10, 2),
         tga::set_pixel::Color::Rgb24(255, 0, 0),
     );
 
     // Vertical Line
     renderer::render_line(
         &mut image,
-        Vector2I {
-            x: 2,
-            y: 10,
-        },
-        Vector2I {
-            x: 3,
-            y: 2,
-        },
+        Vector2I::new(2, 10),
+        Vector2I::new(3, 2),
         tga::set_pixel::Color::Rgb24(0, 255, 0),
     );
-
 
     let mut file = File::options()
         .create(true)
