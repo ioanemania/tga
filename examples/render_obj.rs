@@ -1,7 +1,11 @@
 use std::{env, fs::File, process};
 
-use nalgebra::{Vector2, Vector4};
-use tga::{TGAImage, Vector2I, renderer, set_pixel::{Color, SetPixel}, wavefront_obj::Model};
+use nalgebra::Vector4;
+use tga::{
+    TGAImage, Vector2I, renderer,
+    set_pixel::{Color, SetPixel},
+    wavefront_obj::Model,
+};
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
@@ -43,8 +47,8 @@ fn main() {
 
     for vertex in model.vertices {
         match image.set_pixel(project(vertex), Color::Rgb24(255, 255, 255)) {
-            Ok(_) => {},
-            Err(_) => {},
+            Ok(_) => {}
+            Err(_) => {}
         };
     }
 

@@ -10,12 +10,10 @@ pub fn render_line(target: &mut impl SetPixel, start: Vector2I, end: Vector2I, c
         } else {
             render_line_low(target, start, end, color);
         }
+    } else if start.y > end.y {
+        render_line_high(target, end, start, color);
     } else {
-        if start.y > end.y {
-            render_line_high(target, end, start, color);
-        } else {
-            render_line_high(target, start, end, color);
-        }
+        render_line_high(target, start, end, color);
     }
 }
 
@@ -36,10 +34,10 @@ fn render_line_low(target: &mut impl SetPixel, start: Vector2I, end: Vector2I, c
         target.set_pixel(Vector2I::new(x, y), color).unwrap();
 
         if diff > 0 {
-            y = y + yi;
-            diff = diff + (2*(dy - dx))
+            y += yi;
+            diff += 2 * (dy - dx)
         } else {
-            diff = diff + 2*dy;
+            diff += 2 * dy;
         }
     }
 }
@@ -61,10 +59,10 @@ fn render_line_high(target: &mut impl SetPixel, start: Vector2I, end: Vector2I, 
         target.set_pixel(Vector2I::new(x, y), color).unwrap();
 
         if diff > 0 {
-            x = x + xi;
-            diff = diff + (2*(dx - dy))
+            x += xi;
+            diff += 2 * (dx - dy)
         } else {
-            diff = diff + 2*dx;
+            diff += 2 * dx;
         }
     }
 }

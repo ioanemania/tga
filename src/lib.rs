@@ -5,8 +5,8 @@ use nalgebra::Vector2;
 
 use crate::set_pixel::{Color, SetPixel};
 
-pub mod set_pixel;
 pub mod renderer;
+pub mod set_pixel;
 pub mod wavefront_obj;
 
 pub struct Vector3 {
@@ -204,8 +204,7 @@ impl SetPixel for TGAImage {
             return Err("pixel coordinates out of bounds");
         }
 
-        let offset = ((self.header.height as i32 - 1 - point.y as i32)
-            * self.header.width as i32)
+        let offset = ((self.header.height as i32 - 1 - point.y as i32) * self.header.width as i32)
             + point.x as i32;
 
         if offset < 0 || offset >= self.data.len() as i32 {
