@@ -11,15 +11,44 @@ fn main() {
     renderer::render_line(
         &mut image,
         Vector2I {
-            x: 0,
-            y: (HEIGHT as i16) - 1,
+            x: 10,
+            y: 40,
         },
         Vector2I {
-            x: (WIDTH as i16) - 1,
-            y: 0,
+            x: 19,
+            y: 36,
         },
         tga::set_pixel::Color::Rgb24(255, 0, 0),
     );
+
+    // Horizontal Line
+    renderer::render_line(
+        &mut image,
+        Vector2I {
+            x: 2,
+            y: 2,
+        },
+        Vector2I {
+            x: 10,
+            y: 2,
+        },
+        tga::set_pixel::Color::Rgb24(255, 0, 0),
+    );
+
+    // Vertical Line - Does not work, current line algorithm only supports octane 0
+    renderer::render_line(
+        &mut image,
+        Vector2I {
+            x: 2,
+            y: 10,
+        },
+        Vector2I {
+            x: 3,
+            y: 2,
+        },
+        tga::set_pixel::Color::Rgb24(255, 0, 0),
+    );
+
 
     let mut file = File::options()
         .create(true)
