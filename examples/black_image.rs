@@ -35,7 +35,7 @@ fn main() {
         tga::set_pixel::Color::Rgb24(255, 0, 0),
     );
 
-    // Vertical Line - Does not work, current line algorithm only supports octane 0
+    // Vertical Line
     renderer::render_line(
         &mut image,
         Vector2I {
@@ -46,7 +46,7 @@ fn main() {
             x: 3,
             y: 2,
         },
-        tga::set_pixel::Color::Rgb24(255, 0, 0),
+        tga::set_pixel::Color::Rgb24(0, 255, 0),
     );
 
 
