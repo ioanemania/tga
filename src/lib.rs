@@ -1,13 +1,10 @@
 use std::io::{Read, Write};
 
 use bytemuck::{Pod, Zeroable, bytes_of, checked::from_bytes};
-use nalgebra::Vector2;
 
 use crate::set_pixel::{Color, SetPixel};
 
-pub mod renderer;
 pub mod set_pixel;
-pub mod wavefront_obj;
 
 pub struct Vector3 {
     pub x: f32,
@@ -15,7 +12,17 @@ pub struct Vector3 {
     pub z: f32,
 }
 
-pub type Vector2I = Vector2<i16>;
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct Vector2I {
+    pub x: i16,
+    pub y: i16,
+}
+
+impl Vector2I {
+   pub fn new(x: i16, y: i16) -> Self {
+        Vector2I { x, y }
+   }
+}
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]
@@ -200,7 +207,7 @@ impl SetPixel for TGAImage {
         }
 
         if point.x >= self.header.width as i16 || point.y >= self.header.height as i16 {
-            eprintln!("Pixel coordinates out of bounds: {}", point);
+            eprintln!("Pixel coordinates out of bounds: {:?}", point);
             return Err("pixel coordinates out of bounds");
         }
 
